@@ -1,7 +1,7 @@
 [project]
-name = "specify-cli"
-version = "0.3.2"
-description = "Specify CLI, part of GitHub Spec Kit. A tool to bootstrap your projects for Spec-Driven Development (SDD)."
+name = "specify-cli-tracer"
+version = "0.4.0"
+description = "Specify CLI (Tracer Edition) — Spec Kit fork with built-in tracer-bullet workflow for Spec-Driven Development (SDD)."
 requires-python = ">=3.11"
 dependencies = [
     "typer",
@@ -19,6 +19,7 @@ dependencies = [
 
 [project.scripts]
 specify = "specify_cli:main"
+specify-tracer = "specify_cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -39,6 +40,8 @@ packages = ["src/specify_cli"]
 "templates/vscode-settings.json" = "specify_cli/core_pack/templates/vscode-settings.json"
 # Command templates
 "templates/commands" = "specify_cli/core_pack/commands"
+# Bundled extensions
+"extensions/tracer-bullet" = "specify_cli/core_pack/extensions/tracer-bullet"
 "scripts/bash" = "specify_cli/core_pack/scripts/bash"
 "scripts/powershell" = "specify_cli/core_pack/scripts/powershell"
 ".github/workflows/scripts/create-release-packages.sh" = "specify_cli/core_pack/release_scripts/create-release-packages.sh"

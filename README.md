@@ -1,11 +1,11 @@
 <div align="center">
     <img src="./media/logo_large.webp" alt="Spec Kit Logo" width="200" height="200"/>
-    <h1>🌱 Spec Kit</h1>
-    <h3><em>Build high-quality software faster.</em></h3>
+    <h1>🌱 Spec Kit — Tracer Edition</h1>
+    <h3><em>Build high-quality software faster. Prove it end-to-end first.</em></h3>
 </div>
 
 <p align="center">
-    <strong>An open source toolkit that allows you to focus on product scenarios and predictable outcomes instead of vibe coding every piece from scratch.</strong>
+    <strong>A fork of <a href="https://github.com/github/spec-kit">Spec Kit</a> that adds the tracer-bullet workflow — a thin, end-to-end vertical slice that validates every integration path before full implementation begins.</strong>
 </p>
 
 <p align="center">
@@ -19,6 +19,7 @@
 
 ## Table of Contents
 
+- [🔀 About This Fork](#-about-this-fork)
 - [🤔 What is Spec-Driven Development?](#-what-is-spec-driven-development)
 - [⚡ Get Started](#-get-started)
 - [📽️ Video Overview](#️-video-overview)
@@ -36,6 +37,48 @@
 - [💬 Support](#-support)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [📄 License](#-license)
+
+## 🔀 About This Fork
+
+**Spec Kit — Tracer Edition** (`specify-cli-tracer`) is a local fork of [Spec Kit](https://github.com/github/spec-kit) that adds a tracer-bullet workflow to the spec-driven development lifecycle. It can be installed side-by-side with the upstream `specify-cli` package without conflict.
+
+### What's different?
+
+1. **`/speckit.tracer` command** — A new extension (bundled in the package) that runs after `/speckit.tasks`. It identifies the thinnest end-to-end vertical slice through your architecture, implements it bottom-up (persistence → service → async → API → frontend), and verifies it with a smoke test before any full-scope implementation begins.
+
+2. **"Tracer Bullet First" constitution principle** — The constitution template now includes a principle requiring a tracer bullet for any feature that introduces a new integration boundary. Features that stay within a single proven layer may skip it with an explicit justification.
+
+3. **Separate CLI entry point** — Install as `specify-tracer` alongside the original `specify` command. Both are functionally identical; the separate name avoids confusion about which version you're running.
+
+### Installation
+
+```bash
+# From a local clone of this repo
+pip install -e .
+
+# Or with uv
+uv tool install specify-cli-tracer --from .
+```
+
+After installation, both `specify` and `specify-tracer` are available. The extended workflow becomes:
+
+```
+/speckit.specify → /speckit.clarify → /speckit.plan → /speckit.tasks → /speckit.tracer → /speckit.implement
+```
+
+### Staying in sync with upstream
+
+This fork tracks `specify-cli@0.3.2` as its base. To pull in upstream changes:
+
+```bash
+git remote add upstream https://github.com/github/spec-kit.git
+git fetch upstream
+git merge upstream/main
+```
+
+Resolve any conflicts in `pyproject.toml` (package name / version) and `templates/constitution-template.md` (the Tracer Bullet section).
+
+---
 
 ## 🤔 What is Spec-Driven Development?
 

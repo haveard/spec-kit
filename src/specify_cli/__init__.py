@@ -14,15 +14,15 @@
 Specify CLI - Setup tool for Specify projects
 
 Usage:
-    uvx specify-cli.py init <project-name>
-    uvx specify-cli.py init .
-    uvx specify-cli.py init --here
+    uvx specify-cli-tracer init <project-name>
+    uvx specify-cli-tracer init .
+    uvx specify-cli-tracer init --here
 
 Or install globally:
-    uv tool install --from specify-cli.py specify-cli
-    specify init <project-name>
-    specify init .
-    specify init --here
+    uv tool install specify-cli-tracer
+    specify-tracer init <project-name>
+    specify-tracer init .
+    specify-tracer init --here
 """
 
 import os
@@ -1725,7 +1725,7 @@ def init(
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
     github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
     ai_skills: bool = typer.Option(False, "--ai-skills", help="Install Prompt.MD templates as agent skills (requires --ai)"),
-    offline: bool = typer.Option(False, "--offline", help="Use assets bundled in the specify-cli package instead of downloading from GitHub (no network access required). Bundled assets will become the default in v0.6.0 and this flag will be removed."),
+    offline: bool = typer.Option(False, "--offline", help="Use assets bundled in the specify-cli-tracer package instead of downloading from GitHub (no network access required). Bundled assets will become the default in v0.6.0 and this flag will be removed."),
     preset: str = typer.Option(None, "--preset", help="Install a preset during initialization (by preset ID)"),
     branch_numbering: str = typer.Option(None, "--branch-numbering", help="Branch numbering strategy: 'sequential' (001, 002, ...) or 'timestamp' (YYYYMMDD-HHMMSS)"),
 ):
@@ -1733,7 +1733,7 @@ def init(
     Initialize a new Specify project.
 
     By default, project files are downloaded from the latest GitHub release.
-    Use --offline to scaffold from assets bundled inside the specify-cli
+    Use --offline to scaffold from assets bundled inside the specify-cli-tracer
     package instead (no internet access required, ideal for air-gapped or
     enterprise environments).
 
@@ -2297,7 +2297,7 @@ def version():
     # Get CLI version from package metadata
     cli_version = "unknown"
     try:
-        cli_version = importlib.metadata.version("specify-cli")
+        cli_version = importlib.metadata.version("specify-cli-tracer")
     except Exception:
         # Fallback: try reading from pyproject.toml if running from source
         try:
@@ -2401,7 +2401,7 @@ def get_speckit_version() -> str:
     """Get current spec-kit version."""
     import importlib.metadata
     try:
-        return importlib.metadata.version("specify-cli")
+        return importlib.metadata.version("specify-cli-tracer")
     except Exception:
         # Fallback: try reading from pyproject.toml
         try:

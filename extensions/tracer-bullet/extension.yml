@@ -1,0 +1,39 @@
+schema_version: "1.0"
+
+extension:
+  id: "tracer-bullet"
+  name: "Tracer Bullet Vertical Slice"
+  version: "1.0.0"
+  description: >
+    Adds a /speckit.tracer command that identifies and implements the thinnest
+    end-to-end vertical slice through the stack before full implementation,
+    proving integration paths work and preventing incomplete features.
+  author: "Chris"
+  license: "MIT"
+
+requires:
+  speckit_version: ">=0.3.0"
+
+provides:
+  commands:
+    - name: "speckit.tracer"
+      file: "commands/speckit.tracer.md"
+      description: "Identify and implement the thinnest end-to-end vertical slice (tracer bullet) through the stack, proving the integration path works before full implementation."
+
+  templates:
+    - name: "tracer-template"
+      file: "templates/tracer-template.md"
+      description: "Template for the tracer bullet report artifact"
+
+hooks:
+  after_tasks:
+    command: "speckit.tracer"
+    optional: true
+    prompt: "Run tracer bullet to prove the integration path before full implementation?"
+    description: "Identifies and implements the thinnest end-to-end vertical slice after task generation"
+
+tags:
+  - "integration"
+  - "vertical-slice"
+  - "tracer-bullet"
+  - "quality"

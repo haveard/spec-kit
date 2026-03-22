@@ -537,7 +537,7 @@ class ExtensionManager:
                 raise CompatibilityError(
                     f"Extension requires spec-kit {required}, "
                     f"but {speckit_version} is installed.\n"
-                    f"Upgrade spec-kit with: uv tool install specify-cli --force"
+                    f"Upgrade spec-kit with: uv tool install specify-cli-tracer --force"
                 )
         except InvalidSpecifier:
             raise CompatibilityError(f"Invalid version specifier: {required}")

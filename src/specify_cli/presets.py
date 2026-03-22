@@ -482,7 +482,7 @@ class PresetManager:
                 raise PresetCompatibilityError(
                     f"Preset requires spec-kit {required}, "
                     f"but {speckit_version} is installed.\n"
-                    f"Upgrade spec-kit with: uv tool install specify-cli --force"
+                    f"Upgrade spec-kit with: uv tool install specify-cli-tracer --force"
                 )
         except InvalidSpecifier:
             raise PresetCompatibilityError(
