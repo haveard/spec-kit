@@ -728,6 +728,7 @@ class TestNewProjectCommandSkip:
         target = tmp_path / "missing-codex-skills"
 
         with patch("specify_cli.download_and_extract_template", lambda *args, **kwargs: None), \
+             patch("specify_cli.scaffold_from_core_pack", return_value=True), \
              patch("specify_cli.ensure_executable_scripts"), \
              patch("specify_cli.ensure_constitution_from_template"), \
              patch("specify_cli.install_ai_skills") as mock_skills, \
@@ -749,12 +750,14 @@ class TestNewProjectCommandSkip:
         runner = CliRunner()
         target = tmp_path / "foreign-codex-skills"
 
-        def fake_download(project_path, *args, **kwargs):
+        def fake_scaffold(project_path, *args, **kwargs):
             skill_dir = project_path / ".agents" / "skills" / "other-tool"
             skill_dir.mkdir(parents=True, exist_ok=True)
             (skill_dir / "SKILL.md").write_text("---\ndescription: Foreign skill\n---\n\nBody.\n")
+            return True
 
-        with patch("specify_cli.download_and_extract_template", side_effect=fake_download), \
+        with patch("specify_cli.download_and_extract_template", lambda *args, **kwargs: None), \
+             patch("specify_cli.scaffold_from_core_pack", side_effect=fake_scaffold), \
              patch("specify_cli.ensure_executable_scripts"), \
              patch("specify_cli.ensure_constitution_from_template"), \
              patch("specify_cli.install_ai_skills") as mock_skills, \
@@ -1071,13 +1074,13 @@ class TestCliValidation:
             )
 
         assert result.exit_code == 0
-        # Without --offline, the download path should be taken.
-        assert mock_download.called, (
-            "Expected download_and_extract_template to be called (default non-offline path)"
+        # With local assets available, scaffold_from_core_pack is used (not GitHub download).
+        assert mock_scaffold.called, (
+            "Expected scaffold_from_core_pack to be called (local assets available)"
         )
-        assert mock_download.call_args.args[1] == "kiro-cli"
-        assert not mock_scaffold.called, (
-            "scaffold_from_core_pack should not be called without --offline"
+        assert mock_scaffold.call_args.args[1] == "kiro-cli"
+        assert not mock_download.called, (
+            "download_and_extract_template should not be called when local assets are available"
         )
 
     def test_q_removed_from_agent_config(self):

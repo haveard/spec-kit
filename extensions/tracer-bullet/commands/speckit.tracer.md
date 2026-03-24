@@ -7,6 +7,9 @@ handoffs:
     agent: speckit.implement
     prompt: Continue implementing remaining tasks. The tracer bullet is complete.
     send: true
+scripts:
+  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
 ## User Input
@@ -32,15 +35,17 @@ If any required artifact is missing, STOP and report which artifacts are needed.
 
 ## Outline
 
-1. **Load context**: Read all prerequisite artifacts. Identify the tech stack, infrastructure, and layer architecture from `plan.md`.
+1. **Setup**: Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute.
 
-2. **Identify the tracer path** (Phase 1): Analyze `tasks.md` and `plan.md` to find the single thinnest end-to-end path. This means:
+2. **Load context**: Read all prerequisite artifacts. Identify the tech stack, infrastructure, and layer architecture from `plan.md`.
+
+3. **Identify the tracer path**: Analyze `tasks.md` and `plan.md` to find the single thinnest end-to-end path. This means:
    - ONE entry point (the most representative API endpoint, webhook, or event trigger)
    - Every layer between entry and persistence, with the minimum work at each layer
    - ONE exit point (observable proof: HTTP response, DB row, published message, log entry)
    - The path should cross every integration boundary the feature introduces
 
-3. **Define the scope fence**: Explicitly list what the tracer DEFERS. This typically includes:
+4. **Define the scope fence**: Explicitly list what the tracer DEFERS. This typically includes:
    - Full validation (tracer validates shape only)
    - Error handling beyond "doesn't crash"
    - Authorization (use hardcoded/test identity)
@@ -48,23 +53,23 @@ If any required artifact is missing, STOP and report which artifacts are needed.
    - UI polish (if frontend: one unstyled component proving the data round-trip)
    - Edge cases and alternate flows
 
-4. **Implement bottom-up**: Build the tracer layer by layer, starting from persistence:
-   - 4a. **Persistence**: Minimal migration with only the columns the tracer touches. Verify insert + read-back.
-   - 4b. **Service layer**: Thinnest function that writes to DB and returns result. Hardcode decisions where needed.
-   - 4c. **Async layer** (if applicable): Minimal Celery task or NATS consumer proving message → service → DB.
-   - 4d. **API / Entry layer**: Endpoint with minimal Pydantic validation. Call service, return result.
-   - 4e. **Frontend** (if applicable): One component, one API call, one rendered result. No styling.
-   - 4f. **Infrastructure wiring**: Document any new containers, config, dependencies.
+5. **Implement bottom-up**: Build the tracer layer by layer, starting from persistence:
+   - 5a. **Persistence**: Minimal migration with only the columns the tracer touches. Verify insert + read-back.
+   - 5b. **Service layer**: Thinnest function that writes to DB and returns result. Hardcode decisions where needed.
+   - 5c. **Async layer** (if applicable): Minimal Celery task or NATS consumer proving message → service → DB.
+   - 5d. **API / Entry layer**: Endpoint with minimal Pydantic validation. Call service, return result.
+   - 5e. **Frontend** (if applicable): One component, one API call, one rendered result. No styling.
+   - 5f. **Infrastructure wiring**: Document any new containers, config, dependencies.
 
-5. **Verify the tracer**: Run a smoke test that:
+6. **Verify the tracer**: Run a smoke test that:
    - Sends the trigger
    - Waits for the expected side effect
    - Asserts the exit point condition
    - This test MUST run against real infrastructure, not mocks
 
-6. **Mark completed tasks**: For every task in `tasks.md` that the tracer fully completed, mark it `[X]`.
+7. **Mark completed tasks**: For every task in `tasks.md` that the tracer fully completed, mark it `[X]`.
 
-7. **Produce `tracer.md`**: Write the tracer report to `specs/[feature]/tracer.md` using the tracer template. Include:
+8. **Produce `tracer.md`**: Write the tracer report to `specs/[feature]/tracer.md` using the tracer template. Include:
    - The slice diagram (Mermaid sequence diagram)
    - Layer map with what was implemented vs. deferred at each layer
    - Scope fence (what was deferred)
@@ -72,7 +77,7 @@ If any required artifact is missing, STOP and report which artifacts are needed.
    - Expansion map: remaining work items grouped by parallelizable track
    - Risk register: anything the tracer revealed that wasn't anticipated
 
-8. **Stop and report**: Do NOT proceed to full implementation. Report:
+9. **Stop and report**: Do NOT proceed to full implementation. Report:
    - Tracer status (PASS/FAIL)
    - Which tasks in `tasks.md` are now complete
    - Path to `tracer.md`

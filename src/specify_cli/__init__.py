@@ -1940,22 +1940,24 @@ def init(
     tracker.add("script-select", "Select script type")
     tracker.complete("script-select", selected_script)
 
-    # Determine whether to use bundled assets or download from GitHub (default).
-    # --offline opts in to bundled assets; without it, always use GitHub.
-    # When --offline is set, scaffold_from_core_pack() will try the wheel's
-    # core_pack/ first, then fall back to source-checkout paths. If neither
-    # location has the required assets it returns False and we error out.
+    # Determine whether to use bundled/local assets or download from GitHub.
+    # --offline explicitly forces bundled assets.
+    # For spec-kit-tracer: prefer local assets when available (source checkout or
+    # wheel install) so that the custom tracer command is always deployed.
+    # Fall back to GitHub only when no local assets are found.
     _core = _locate_core_pack()
+    _repo_commands = Path(__file__).parent.parent.parent / "templates" / "commands"
+    _has_local_assets = (_core is not None) or _repo_commands.is_dir()
 
-    use_github = not offline
+    # Use GitHub only when explicitly NOT offline AND no local assets available.
+    use_github = (not offline) and (not _has_local_assets)
 
-    if use_github and _core is not None:
-        console.print(
-            "[yellow]Note:[/yellow] Bundled assets are available in this install. "
-            "Use [bold]--offline[/bold] to skip the GitHub download — faster, "
-            "no network required, and guaranteed version match.\n"
-            "This will become the default in v0.6.0."
-        )
+    if (not offline) and _has_local_assets and _core is None:
+        # Source-checkout: silently use local assets (no wheel bundle present)
+        pass
+    elif (not offline) and _has_local_assets and _core is not None:
+        # Wheel install: bundled assets are available and will be used
+        pass
 
     if use_github:
         for key, label in [
