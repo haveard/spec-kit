@@ -20,6 +20,7 @@ dependencies = [
 [project.scripts]
 specify = "specify_cli:main"
 specify-tracer = "specify_cli:main"
+spec-kit-tracer = "specify_cli:main"
 
 [build-system]
 requires = ["hatchling"]

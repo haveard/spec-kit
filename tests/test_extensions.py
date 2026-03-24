@@ -241,16 +241,17 @@ class TestExtensionManifest:
             ExtensionManifest(manifest_path)
 
     def test_no_commands(self, temp_dir, valid_manifest_data):
-        """Test manifest with no commands provided."""
+        """Test manifest with no commands, templates, or hooks is invalid."""
         import yaml
 
         valid_manifest_data["provides"]["commands"] = []
+        valid_manifest_data.pop("hooks", None)
 
         manifest_path = temp_dir / "extension.yml"
         with open(manifest_path, 'w') as f:
             yaml.dump(valid_manifest_data, f)
 
-        with pytest.raises(ValidationError, match="must provide at least one command"):
+        with pytest.raises(ValidationError, match="must provide at least one command, template, or hook"):
             ExtensionManifest(manifest_path)
 
     def test_manifest_hash(self, extension_dir):

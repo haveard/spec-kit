@@ -2129,6 +2129,43 @@ def init(
                 except Exception as preset_err:
                     console.print(f"[yellow]Warning:[/yellow] Failed to install preset: {preset_err}")
 
+            # Auto-install bundled extensions (e.g. tracer-bullet)
+            # Prefer wheel core_pack, fall back to source-checkout extensions/ dir.
+            _bundled_ext_dir: Path | None = None
+            core = _locate_core_pack()
+            if core and (core / "extensions").is_dir():
+                _bundled_ext_dir = core / "extensions"
+            else:
+                # Source-checkout fallback: repo_root/extensions/<ext>/extension.yml
+                _repo_root = Path(__file__).parent.parent.parent
+                _src_ext_dir = _repo_root / "extensions"
+                if _src_ext_dir.is_dir():
+                    _bundled_ext_dir = _src_ext_dir
+
+            if _bundled_ext_dir:
+                # Only auto-install extensions explicitly bundled via pyproject.toml
+                # (those whose names are listed in the wheel force-include mapping).
+                _BUNDLED_EXT_IDS = {"tracer-bullet"}
+                try:
+                    from .extensions import ExtensionManager, ExtensionError, ValidationError, CompatibilityError
+                    ext_manager = ExtensionManager(project_path)
+                    speckit_ver = get_speckit_version()
+                    for ext_path in sorted(_bundled_ext_dir.iterdir()):
+                        if ext_path.name not in _BUNDLED_EXT_IDS:
+                            continue
+                        if not (ext_path.is_dir() and (ext_path / "extension.yml").exists()):
+                            continue
+                        try:
+                            # Force reinstall so command files are always written
+                            # (handles both fresh installs and --here on existing projects).
+                            if ext_manager.registry.is_installed(ext_path.name):
+                                ext_manager.remove(ext_path.name)
+                            ext_manager.install_from_directory(ext_path, speckit_ver)
+                        except (ValidationError, CompatibilityError) as ext_err:
+                            console.print(f"[yellow]Warning:[/yellow] Could not install bundled extension '{ext_path.name}': {ext_err}")
+                except Exception as ext_err:
+                    console.print(f"[yellow]Warning:[/yellow] Bundled extension installation failed: {ext_err}")
+
             # Scaffold path has no zip archive to clean up
             if not use_github:
                 tracker.skip("cleanup", "not needed (no download)")
@@ -2219,7 +2256,8 @@ def init(
     steps_lines.append(f"   {step_num}.2 [cyan]{_display_cmd('specify')}[/] - Create baseline specification")
     steps_lines.append(f"   {step_num}.3 [cyan]{_display_cmd('plan')}[/] - Create implementation plan")
     steps_lines.append(f"   {step_num}.4 [cyan]{_display_cmd('tasks')}[/] - Generate actionable tasks")
-    steps_lines.append(f"   {step_num}.5 [cyan]{_display_cmd('implement')}[/] - Execute implementation")
+    steps_lines.append(f"   {step_num}.5 [cyan]{_display_cmd('tracer')}[/] - Prove end-to-end integration path (tracer bullet)")
+    steps_lines.append(f"   {step_num}.6 [cyan]{_display_cmd('implement')}[/] - Execute remaining implementation")
 
     steps_panel = Panel("\n".join(steps_lines), title="Next Steps", border_style="cyan", padding=(1,2))
     console.print()

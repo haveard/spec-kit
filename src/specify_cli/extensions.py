@@ -140,11 +140,16 @@ class ExtensionManifest:
 
         # Validate provides section
         provides = self.data["provides"]
-        if "commands" not in provides or not provides["commands"]:
-            raise ValidationError("Extension must provide at least one command")
+        has_commands = "commands" in provides and provides["commands"]
+        has_templates = "templates" in provides and provides["templates"]
+        has_hooks = "hooks" in self.data and self.data["hooks"]
+        if not has_commands and not has_templates and not has_hooks:
+            raise ValidationError(
+                "Extension must provide at least one command, template, or hook"
+            )
 
         # Validate commands
-        for cmd in provides["commands"]:
+        for cmd in provides.get("commands") or []:
             if "name" not in cmd or "file" not in cmd:
                 raise ValidationError("Command missing 'name' or 'file'")
 
@@ -183,7 +188,7 @@ class ExtensionManifest:
     @property
     def commands(self) -> List[Dict[str, Any]]:
         """Get list of provided commands."""
-        return self.data["provides"]["commands"]
+        return self.data["provides"].get("commands") or []
 
     @property
     def hooks(self) -> Dict[str, Any]:

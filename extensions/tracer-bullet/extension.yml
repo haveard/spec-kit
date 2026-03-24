@@ -5,9 +5,9 @@ extension:
   name: "Tracer Bullet Vertical Slice"
   version: "1.0.0"
   description: >
-    Adds a /speckit.tracer command that identifies and implements the thinnest
-    end-to-end vertical slice through the stack before full implementation,
-    proving integration paths work and preventing incomplete features.
+    Registers the after_tasks hook that prompts the AI to run /speckit.tracer
+    after task generation, and provides the tracer.md report template.
+    The /speckit.tracer command is installed as a core spec-kit command.
   author: "Chris"
   license: "MIT"
 
@@ -15,11 +15,6 @@ requires:
   speckit_version: ">=0.3.0"
 
 provides:
-  commands:
-    - name: "speckit.tracer"
-      file: "commands/speckit.tracer.md"
-      description: "Identify and implement the thinnest end-to-end vertical slice (tracer bullet) through the stack, proving the integration path works before full implementation."
-
   templates:
     - name: "tracer-template"
       file: "templates/tracer-template.md"
